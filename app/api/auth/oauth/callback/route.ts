@@ -1,7 +1,5 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-
-const JWT_COOKIE = process.env.JWT_COOKIE_NAME || "ef_session";
+import { setAuthCookie } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,13 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Set httpOnly cookie
-    cookies().set(JWT_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    setAuthCookie(token);
 
     return NextResponse.json({ success: true });
   } catch (error) {

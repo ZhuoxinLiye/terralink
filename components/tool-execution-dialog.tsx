@@ -8,7 +8,7 @@ interface ToolExecutionDialogProps {
   tool: Tool | null;
   isOpen: boolean;
   onClose: () => void;
-  onExecute: (toolSlug: string, args: any) => void;
+  onExecute: (toolSlug: string, args: any) => Promise<any>;
 }
 
 export default function ToolExecutionDialog({
@@ -218,14 +218,12 @@ export default function ToolExecutionDialog({
         }
       
         const result = await resp.json();
-        setExecutionResult(result);
-        setShowResult(true);
+        showExecutionResponse(result);
         return;
       } 
 
       const result = await onExecute(tool.slug, cleanedParameters);
-      setExecutionResult(result);
-      setShowResult(true);
+      showExecutionResponse(result);
     } catch (error) {
       console.error('Tool execution failed:', error);
       setExecutionError(error instanceof Error ? error.message : 'Tool execution failed');
@@ -233,6 +231,20 @@ export default function ToolExecutionDialog({
     } finally {
       setIsExecuting(false);
     }
+  };
+
+  // Terrabox reports handler failures in a 200 response with success=false.
+  // Preserve the response for inspection and show the actual tool outcome.
+  const showExecutionResponse = (result: any) => {
+    setExecutionResult(result);
+    const failure = [result, result?.outputs].find(value => value && (
+      value.success === false || value.ok === false || value.execution_blocked === true
+    ));
+    if (failure) {
+      const error = failure.error || failure.reason_code || 'The tool reported a failed execution';
+      setExecutionError(typeof error === 'string' ? error : error.message || JSON.stringify(error));
+    }
+    setShowResult(true);
   };
 
   const handleClose = () => {
@@ -568,6 +580,11 @@ export default function ToolExecutionDialog({
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <h4 className="text-red-800 font-medium mb-2">Execution Failed</h4>
                   <p className="text-red-700 text-sm">{executionError}</p>
+                  {executionResult && (
+                    <pre className="mt-3 text-sm text-gray-800 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                      {JSON.stringify(sanitizeResultForDisplay(executionResult), null, 2)}
+                    </pre>
+                  )}
                 </div>
               ) : (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">

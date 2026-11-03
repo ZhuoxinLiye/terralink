@@ -14,7 +14,11 @@ export function setAuthCookie(token: string): void {
     name: JWT_COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // HTTP is used only inside the existing private deployment. Production
+    // remains Secure by default; HTTPS deployments should keep the default.
+    secure: process.env.JWT_COOKIE_SECURE === 'false'
+      ? false
+      : process.env.JWT_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/'
