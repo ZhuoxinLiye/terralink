@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiResponse } from '@/lib/types';
+import { authCookieSecure } from '@/lib/auth';
 
 const JWT_COOKIE_NAME = process.env.JWT_COOKIE_NAME || 'ef_session';
 
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
       name: JWT_COOKIE_NAME,
       value: '',
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: authCookieSecure(),
       sameSite: 'lax',
       maxAge: 0, // Expire immediately
       path: '/'

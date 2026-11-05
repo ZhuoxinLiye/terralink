@@ -337,7 +337,7 @@ export default function ConsolePage() {
                 ))
               ) : (
                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm text-center">
-                  <p className="text-gray-600">You don't have any API keys yet. Create a new API key to get started.</p>
+                  <p className="text-gray-600">You don&apos;t have any API keys yet. Create a new API key to get started.</p>
                 </div>
               )}
             </div>

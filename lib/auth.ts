@@ -3,6 +3,12 @@ import { NextRequest } from 'next/server';
 
 const JWT_COOKIE_NAME = process.env.JWT_COOKIE_NAME || 'ef_session';
 
+export function authCookieSecure(): boolean {
+  return process.env.JWT_COOKIE_SECURE === 'false'
+    ? false
+    : process.env.JWT_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
+}
+
 export function getAuthToken(): string | undefined {
   const cookieStore = cookies();
   return cookieStore.get(JWT_COOKIE_NAME)?.value;
@@ -16,9 +22,7 @@ export function setAuthCookie(token: string): void {
     httpOnly: true,
     // HTTP is used only inside the existing private deployment. Production
     // remains Secure by default; HTTPS deployments should keep the default.
-    secure: process.env.JWT_COOKIE_SECURE === 'false'
-      ? false
-      : process.env.JWT_COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+    secure: authCookieSecure(),
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/'

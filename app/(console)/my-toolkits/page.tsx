@@ -197,7 +197,7 @@ export default function MyToolkitsPage() {
                 No Connected Toolkits
               </h3>
               <p className="text-gray-500 mb-4">
-                You haven't connected any toolkits yet. Please connect toolkits from the toolkits page first
+                You haven&apos;t connected any toolkits yet. Please connect toolkits from the toolkits page first
               </p>
               <a
                 href="/toolkits"
